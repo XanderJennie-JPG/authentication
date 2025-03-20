@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, ScrollView, Platform, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -16,6 +16,13 @@ const SECURITY_QUESTIONS = [
   "What is your favorite book?"
 ];
 
+// Helper function to safely use sessionStorage (only available in browser)
+const saveToStorage = (key: string, value: string) => {
+  if (Platform.OS === 'web' && typeof window !== 'undefined' && window.sessionStorage) {
+    window.sessionStorage.setItem(key, value);
+  }
+};
+
 export default function SignupSecurityScreen() {
   const router = useRouter();
   const [selectedQuestion, setSelectedQuestion] = useState(SECURITY_QUESTIONS[0]);
@@ -28,23 +35,22 @@ export default function SignupSecurityScreen() {
     }
     
     // Store in sessionStorage
-    sessionStorage.setItem('auth_security_question', selectedQuestion);
-    sessionStorage.setItem('auth_security_answer', answer);
+    saveToStorage('auth_security_question', selectedQuestion);
+    saveToStorage('auth_security_answer', answer);
     
     // Complete signup
     router.push('/signup-success');
   };
 
   return (
-    <ThemedView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <ThemedView style={styles.titleContainer}>
-          <ThemedText type="title">Security Question</ThemedText>
-        </ThemedView>
-        
-        <ThemedView style={styles.questionContainer}>
-          <ThemedText>select a security question:</ThemedText>
-          <ThemedView style={styles.questionsWrapper}>
+        <View style={styles.formContainer}>
+          <View style={styles.headerGroup}>
+            <ThemedText style={styles.inputLabel}>select a security question.</ThemedText>
+          </View>
+          
+          <View style={styles.questionsContainer}>
             {SECURITY_QUESTIONS.map((question, index) => (
               <TouchableOpacity
                 key={index}
@@ -55,96 +61,116 @@ export default function SignupSecurityScreen() {
                 onPress={() => setSelectedQuestion(question)}
               >
                 <ThemedText 
-                  style={selectedQuestion === question ? styles.selectedQuestionText : {}}
+                  style={[
+                    styles.questionText,
+                    selectedQuestion === question && styles.selectedQuestionText
+                  ]}
                 >
                   {question}
                 </ThemedText>
               </TouchableOpacity>
             ))}
-          </ThemedView>
-        </ThemedView>
-        
-        <ThemedView style={styles.answerContainer}>
-          <ThemedText>answer your security question.</ThemedText>
-          <TextInput
-            style={styles.input}
-            value={answer}
-            onChangeText={setAnswer}
-            placeholder=""
-            placeholderTextColor="#666"
-          />
-        </ThemedView>
-        
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={handleComplete}
-        >
-          <ThemedText style={styles.buttonText}>Complete Signup</ThemedText>
-        </TouchableOpacity>
+          </View>
+          
+          <View style={styles.inputGroup}>
+            <ThemedText style={styles.inputLabel}>answer your security question.</ThemedText>
+            <TextInput
+              style={styles.input}
+              value={answer}
+              onChangeText={setAnswer}
+              placeholder=""
+              placeholderTextColor="#666"
+              selectionColor="#85a8ff"
+            />
+          </View>
+          
+          <TouchableOpacity 
+            style={styles.cursorButton} 
+            onPress={handleComplete}
+          >
+            <View style={styles.cursor}></View>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
-    </ThemedView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0f1117',
   },
   scrollContainer: {
     padding: 20,
     flexGrow: 1,
-  },
-  titleContainer: {
-    marginBottom: 30,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  questionContainer: {
+  formContainer: {
     width: '100%',
-    marginBottom: 20,
+    maxWidth: 400,
+    borderWidth: 1,
+    borderColor: '#2a3c5d',
+    borderRadius: 5,
+    overflow: 'hidden',
   },
-  questionsWrapper: {
-    marginTop: 10,
+  headerGroup: {
+    width: '100%',
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
+    padding: 20,
+  },
+  questionsContainer: {
+    width: '100%',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
   },
   questionOption: {
     padding: 15,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
+    borderColor: '#2a3c5d',
+    borderRadius: 5,
     marginBottom: 10,
   },
+  questionText: {
+    color: '#85a8ff',
+    fontFamily: 'monospace',
+  },
   selectedQuestion: {
-    borderColor: '#4E5DE1',
-    backgroundColor: 'rgba(78, 93, 225, 0.1)',
+    borderColor: '#85a8ff',
+    backgroundColor: 'rgba(133, 168, 255, 0.1)',
   },
   selectedQuestionText: {
     fontWeight: 'bold',
   },
-  answerContainer: {
+  inputGroup: {
     width: '100%',
-    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
+    padding: 20,
+  },
+  inputLabel: {
+    color: '#85a8ff',
+    fontSize: 18,
+    marginBottom: 10,
+    fontFamily: 'monospace',
   },
   input: {
     width: '100%',
-    padding: 15,
-    borderWidth: 1,
-    borderColor: '#4E5DE1',
-    borderRadius: 8,
-    marginTop: 10,
-    color: '#000',
-    backgroundColor: '#fff',
+    color: '#85a8ff',
+    fontSize: 24,
+    fontFamily: 'monospace',
+    padding: 0,
   },
-  button: {
-    backgroundColor: '#4E5DE1',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    marginTop: 20,
+  cursorButton: {
+    alignItems: 'flex-end',
+    padding: 20,
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+  cursor: {
+    width: 30,
+    height: 5,
+    backgroundColor: '#85a8ff',
   },
 }); 
