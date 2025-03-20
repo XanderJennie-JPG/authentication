@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, Platform, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+
+// Helper function to safely use sessionStorage (only available in browser)
+const getFromStorage = (key: string) => {
+  if (Platform.OS === 'web' && typeof window !== 'undefined' && window.sessionStorage) {
+    return window.sessionStorage.getItem(key);
+  }
+  return null;
+};
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -18,8 +26,8 @@ export default function LoginScreen() {
     }
     
     // Check credentials against sessionStorage
-    const storedUsername = sessionStorage.getItem('auth_username');
-    const storedPassword = sessionStorage.getItem('auth_password');
+    const storedUsername = getFromStorage('auth_username');
+    const storedPassword = getFromStorage('auth_password');
     
     if (username === storedUsername && password === storedPassword) {
       // Move to PIN verification
@@ -30,60 +38,64 @@ export default function LoginScreen() {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Login</ThemedText>
-      </ThemedView>
-      
-      {error ? (
-        <ThemedView style={styles.errorContainer}>
-          <ThemedText style={styles.errorText}>{error}</ThemedText>
-        </ThemedView>
-      ) : null}
-      
-      <ThemedView style={styles.inputContainer}>
-        <ThemedText>username</ThemedText>
-        <TextInput
-          style={styles.input}
-          value={username}
-          onChangeText={(text) => {
-            setUsername(text);
-            setError('');
-          }}
-          placeholder=""
-          placeholderTextColor="#666"
-        />
-      </ThemedView>
-      
-      <ThemedView style={styles.inputContainer}>
-        <ThemedText>password</ThemedText>
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={(text) => {
-            setPassword(text);
-            setError('');
-          }}
-          secureTextEntry
-          placeholder=""
-          placeholderTextColor="#666"
-        />
-      </ThemedView>
-      
-      <TouchableOpacity 
-        style={styles.button} 
-        onPress={handleLogin}
-      >
-        <ThemedText style={styles.buttonText}>Next</ThemedText>
-      </TouchableOpacity>
-      
-      <TouchableOpacity 
-        style={styles.linkButton} 
-        onPress={() => router.push('/')}
-      >
-        <ThemedText style={styles.linkText}>Back to Home</ThemedText>
-      </TouchableOpacity>
-    </ThemedView>
+    <View style={styles.container}>
+      <View style={styles.formContainer}>
+        <View style={styles.headerGroup}>
+          <ThemedText style={styles.headerText}>login</ThemedText>
+        </View>
+        
+        {error ? (
+          <View style={styles.errorContainer}>
+            <ThemedText style={styles.errorText}>{error}</ThemedText>
+          </View>
+        ) : null}
+        
+        <View style={styles.inputGroup}>
+          <ThemedText style={styles.inputLabel}>username</ThemedText>
+          <TextInput
+            style={styles.input}
+            value={username}
+            onChangeText={(text) => {
+              setUsername(text);
+              setError('');
+            }}
+            placeholder=""
+            placeholderTextColor="#666"
+            selectionColor="#85a8ff"
+          />
+        </View>
+        
+        <View style={styles.inputGroup}>
+          <ThemedText style={styles.inputLabel}>password</ThemedText>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={(text) => {
+              setPassword(text);
+              setError('');
+            }}
+            secureTextEntry
+            placeholder=""
+            placeholderTextColor="#666"
+            selectionColor="#85a8ff"
+          />
+        </View>
+        
+        <TouchableOpacity 
+          style={styles.cursorButton} 
+          onPress={handleLogin}
+        >
+          <View style={styles.cursor}></View>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.linkButton} 
+          onPress={() => router.push('/')}
+        >
+          <ThemedText style={styles.linkText}>back to home</ThemedText>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
@@ -92,55 +104,76 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#0f1117',
     padding: 20,
   },
-  titleContainer: {
-    marginBottom: 30,
+  formContainer: {
+    width: '100%',
+    maxWidth: 400,
+    borderWidth: 1,
+    borderColor: '#2a3c5d',
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  headerGroup: {
+    width: '100%',
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
+    padding: 20,
+  },
+  headerText: {
+    color: '#85a8ff',
+    fontSize: 24,
+    fontFamily: 'monospace',
   },
   errorContainer: {
-    backgroundColor: 'rgba(255, 0, 0, 0.1)',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 20,
-    width: '100%',
+    backgroundColor: 'rgba(255, 50, 50, 0.1)',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
   },
   errorText: {
-    color: 'red',
+    color: '#ff8585',
+    fontFamily: 'monospace',
     textAlign: 'center',
   },
-  inputContainer: {
+  inputGroup: {
     width: '100%',
-    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
+    padding: 20,
+  },
+  inputLabel: {
+    color: '#85a8ff',
+    fontSize: 18,
+    marginBottom: 10,
+    fontFamily: 'monospace',
   },
   input: {
     width: '100%',
-    padding: 15,
-    borderWidth: 1,
-    borderColor: '#4E5DE1',
-    borderRadius: 8,
-    marginTop: 10,
-    color: '#000',
-    backgroundColor: '#fff',
+    color: '#85a8ff',
+    fontSize: 24,
+    fontFamily: 'monospace',
+    padding: 0,
   },
-  button: {
-    backgroundColor: '#4E5DE1',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    marginTop: 20,
+  cursorButton: {
+    alignItems: 'flex-end',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+  cursor: {
+    width: 30,
+    height: 5,
+    backgroundColor: '#85a8ff',
   },
   linkButton: {
-    marginTop: 15,
+    padding: 20,
+    alignItems: 'center',
   },
   linkText: {
-    color: '#4E5DE1',
+    color: '#85a8ff',
+    fontFamily: 'monospace',
     textDecorationLine: 'underline',
   },
 }); 

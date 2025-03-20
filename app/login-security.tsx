@@ -1,23 +1,25 @@
-import { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { useState } from 'react';
+import { StyleSheet, TextInput, TouchableOpacity, Platform, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
+// Helper function to safely use sessionStorage (only available in browser)
+const getFromStorage = (key: string) => {
+  if (Platform.OS === 'web' && typeof window !== 'undefined' && window.sessionStorage) {
+    return window.sessionStorage.getItem(key);
+  }
+  return null;
+};
+
 export default function LoginSecurityScreen() {
   const router = useRouter();
-  const [securityQuestion, setSecurityQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [error, setError] = useState('');
   
-  useEffect(() => {
-    // Get the security question from sessionStorage
-    const question = sessionStorage.getItem('auth_security_question');
-    if (question) {
-      setSecurityQuestion(question);
-    }
-  }, []);
+  // Get the stored security question
+  const securityQuestion = getFromStorage('auth_security_question') || 'What was your first pet\'s name?';
   
   const handleVerify = () => {
     if (!answer.trim()) {
@@ -26,10 +28,10 @@ export default function LoginSecurityScreen() {
     }
     
     // Check answer against sessionStorage
-    const storedAnswer = sessionStorage.getItem('auth_security_answer');
+    const storedAnswer = getFromStorage('auth_security_answer');
     
-    if (answer.toLowerCase().trim() === storedAnswer?.toLowerCase().trim()) {
-      // Successful login!
+    if (answer.toLowerCase() === storedAnswer?.toLowerCase()) {
+      // Authentication complete, go to success page
       router.push('/login-success');
     } else {
       setError('Incorrect answer');
@@ -38,44 +40,46 @@ export default function LoginSecurityScreen() {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Security Question</ThemedText>
-      </ThemedView>
-      
-      {error ? (
-        <ThemedView style={styles.errorContainer}>
-          <ThemedText style={styles.errorText}>{error}</ThemedText>
-        </ThemedView>
-      ) : null}
-      
-      <ThemedView style={styles.questionContainer}>
-        <ThemedText>answer your security question.</ThemedText>
-        <ThemedView style={styles.questionBox}>
+    <View style={styles.container}>
+      <View style={styles.formContainer}>
+        <View style={styles.headerGroup}>
+          <ThemedText style={styles.headerText}>security verification</ThemedText>
+        </View>
+        
+        {error ? (
+          <View style={styles.errorContainer}>
+            <ThemedText style={styles.errorText}>{error}</ThemedText>
+          </View>
+        ) : null}
+        
+        <View style={styles.questionGroup}>
+          <ThemedText style={styles.inputLabel}>your security question:</ThemedText>
           <ThemedText style={styles.questionText}>{securityQuestion}</ThemedText>
-        </ThemedView>
-      </ThemedView>
-      
-      <ThemedView style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={answer}
-          onChangeText={(text) => {
-            setAnswer(text);
-            setError('');
-          }}
-          placeholder=""
-          placeholderTextColor="#666"
-        />
-      </ThemedView>
-      
-      <TouchableOpacity 
-        style={styles.button} 
-        onPress={handleVerify}
-      >
-        <ThemedText style={styles.buttonText}>Verify</ThemedText>
-      </TouchableOpacity>
-    </ThemedView>
+        </View>
+        
+        <View style={styles.inputGroup}>
+          <ThemedText style={styles.inputLabel}>your answer:</ThemedText>
+          <TextInput
+            style={styles.input}
+            value={answer}
+            onChangeText={(text) => {
+              setAnswer(text);
+              setError('');
+            }}
+            placeholder=""
+            placeholderTextColor="#666"
+            selectionColor="#85a8ff"
+          />
+        </View>
+        
+        <TouchableOpacity 
+          style={styles.cursorButton} 
+          onPress={handleVerify}
+        >
+          <View style={styles.cursor}></View>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
@@ -84,61 +88,77 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#0f1117',
     padding: 20,
   },
-  titleContainer: {
-    marginBottom: 30,
+  formContainer: {
+    width: '100%',
+    maxWidth: 400,
+    borderWidth: 1,
+    borderColor: '#2a3c5d',
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  headerGroup: {
+    width: '100%',
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
+    padding: 20,
+  },
+  headerText: {
+    color: '#85a8ff',
+    fontSize: 24,
+    fontFamily: 'monospace',
   },
   errorContainer: {
-    backgroundColor: 'rgba(255, 0, 0, 0.1)',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 20,
-    width: '100%',
+    backgroundColor: 'rgba(255, 50, 50, 0.1)',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
   },
   errorText: {
-    color: 'red',
+    color: '#ff8585',
+    fontFamily: 'monospace',
     textAlign: 'center',
   },
-  questionContainer: {
+  questionGroup: {
     width: '100%',
-    marginBottom: 20,
-  },
-  questionBox: {
-    padding: 15,
-    backgroundColor: 'rgba(78, 93, 225, 0.1)',
-    borderRadius: 8,
-    marginTop: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
+    padding: 20,
   },
   questionText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: '#85a8ff',
+    fontSize: 18,
+    fontFamily: 'monospace',
+    marginTop: 10,
   },
-  inputContainer: {
+  inputGroup: {
     width: '100%',
-    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
+    padding: 20,
+  },
+  inputLabel: {
+    color: '#85a8ff',
+    fontSize: 18,
+    marginBottom: 10,
+    fontFamily: 'monospace',
   },
   input: {
     width: '100%',
-    padding: 15,
-    borderWidth: 1,
-    borderColor: '#4E5DE1',
-    borderRadius: 8,
-    color: '#000',
-    backgroundColor: '#fff',
+    color: '#85a8ff',
+    fontSize: 24,
+    fontFamily: 'monospace',
+    padding: 0,
   },
-  button: {
-    backgroundColor: '#4E5DE1',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    marginTop: 20,
+  cursorButton: {
+    alignItems: 'flex-end',
+    padding: 20,
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+  cursor: {
+    width: 30,
+    height: 5,
+    backgroundColor: '#85a8ff',
   },
 }); 

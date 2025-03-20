@@ -1,9 +1,17 @@
 import { useState } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, Platform, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+
+// Helper function to safely use sessionStorage (only available in browser)
+const getFromStorage = (key: string) => {
+  if (Platform.OS === 'web' && typeof window !== 'undefined' && window.sessionStorage) {
+    return window.sessionStorage.getItem(key);
+  }
+  return null;
+};
 
 export default function LoginPinScreen() {
   const router = useRouter();
@@ -29,7 +37,7 @@ export default function LoginPinScreen() {
     }
     
     // Check PIN against sessionStorage
-    const storedPin = sessionStorage.getItem('auth_pin');
+    const storedPin = getFromStorage('auth_pin');
     
     if (pin === storedPin) {
       // Move to email verification
@@ -41,81 +49,58 @@ export default function LoginPinScreen() {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">PIN Verification</ThemedText>
-      </ThemedView>
-      
-      {error ? (
-        <ThemedView style={styles.errorContainer}>
-          <ThemedText style={styles.errorText}>{error}</ThemedText>
-        </ThemedView>
-      ) : null}
-      
-      <ThemedView style={styles.pinContainer}>
-        <ThemedText style={styles.pinInstructions}>enter your pin.</ThemedText>
-        <ThemedView style={styles.pinDisplay}>
-          <ThemedText style={styles.pinText}>{pin.replace(/./g, '*')}</ThemedText>
-        </ThemedView>
-      </ThemedView>
-      
-      <ThemedView style={styles.keypadContainer}>
-        <ThemedView style={styles.keypadRow}>
-          {[1, 2, 3].map(num => (
-            <TouchableOpacity 
-              key={num} 
-              style={styles.keypadButton} 
-              onPress={() => handleDigit(num.toString())}
-            >
-              <ThemedText style={styles.keypadText}>{num}</ThemedText>
-            </TouchableOpacity>
-          ))}
-        </ThemedView>
+    <View style={styles.container}>
+      <View style={styles.formContainer}>
+        <View style={styles.headerGroup}>
+          <ThemedText style={styles.headerText}>verify pin</ThemedText>
+        </View>
         
-        <ThemedView style={styles.keypadRow}>
-          {[4, 5, 6].map(num => (
-            <TouchableOpacity 
-              key={num} 
-              style={styles.keypadButton} 
-              onPress={() => handleDigit(num.toString())}
-            >
-              <ThemedText style={styles.keypadText}>{num}</ThemedText>
-            </TouchableOpacity>
-          ))}
-        </ThemedView>
+        {error ? (
+          <View style={styles.errorContainer}>
+            <ThemedText style={styles.errorText}>{error}</ThemedText>
+          </View>
+        ) : null}
         
-        <ThemedView style={styles.keypadRow}>
-          {[7, 8, 9].map(num => (
-            <TouchableOpacity 
-              key={num} 
-              style={styles.keypadButton} 
-              onPress={() => handleDigit(num.toString())}
-            >
-              <ThemedText style={styles.keypadText}>{num}</ThemedText>
-            </TouchableOpacity>
-          ))}
-        </ThemedView>
+        <View style={styles.pinContainer}>
+          <View style={styles.pinDisplay}>
+            <ThemedText style={styles.pinText}>{pin.replace(/./g, '*')}</ThemedText>
+          </View>
+        </View>
         
-        <ThemedView style={styles.keypadRow}>
-          <TouchableOpacity style={styles.keypadButton} onPress={handleDelete}>
-            <ThemedText style={styles.keypadText}>←</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.keypadButton} 
-            onPress={() => handleDigit('0')}
-          >
-            <ThemedText style={styles.keypadText}>0</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.keypadButton, {opacity: pin.length === 6 ? 1 : 0.5}]} 
-            onPress={handleVerify}
-            disabled={pin.length !== 6}
-          >
-            <ThemedText style={styles.keypadText}>→</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-      </ThemedView>
-    </ThemedView>
+        <View style={styles.keypadContainer}>
+          <View style={styles.keypadGrid}>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+              <TouchableOpacity 
+                key={num} 
+                style={styles.keypadButton} 
+                onPress={() => handleDigit(num.toString())}
+              >
+                <ThemedText style={styles.keypadText}>{num}</ThemedText>
+              </TouchableOpacity>
+            ))}
+          </View>
+          
+          <View style={styles.actionRow}>
+            <TouchableOpacity style={styles.actionButton} onPress={handleDelete}>
+              <ThemedText style={styles.keypadText}>←</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.keypadButton} 
+              onPress={() => handleDigit('0')}
+            >
+              <ThemedText style={styles.keypadText}>0</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.actionButton, {opacity: pin.length === 6 ? 1 : 0.5}]} 
+              onPress={handleVerify}
+              disabled={pin.length !== 6}
+            >
+              <ThemedText style={styles.keypadText}>→</ThemedText>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </View>
   );
 }
 
@@ -124,61 +109,96 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#0f1117',
     padding: 20,
   },
-  titleContainer: {
-    marginBottom: 20,
+  formContainer: {
+    width: '100%',
+    maxWidth: 400,
+    borderWidth: 1,
+    borderColor: '#2a3c5d',
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  headerGroup: {
+    width: '100%',
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
+    padding: 20,
+  },
+  headerText: {
+    color: '#85a8ff',
+    fontSize: 24,
+    fontFamily: 'monospace',
   },
   errorContainer: {
-    backgroundColor: 'rgba(255, 0, 0, 0.1)',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 20,
-    width: '100%',
+    backgroundColor: 'rgba(255, 50, 50, 0.1)',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
   },
   errorText: {
-    color: 'red',
+    color: '#ff8585',
+    fontFamily: 'monospace',
     textAlign: 'center',
   },
   pinContainer: {
     width: '100%',
-    alignItems: 'flex-start',
-    marginBottom: 30,
-  },
-  pinInstructions: {
-    fontSize: 18,
-    marginBottom: 10,
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
+    padding: 20,
   },
   pinDisplay: {
     width: '100%',
     height: 50,
     justifyContent: 'center',
     borderBottomWidth: 2,
-    borderBottomColor: '#4E5DE1',
+    borderBottomColor: '#85a8ff',
   },
   pinText: {
-    fontSize: 24,
+    color: '#85a8ff',
+    fontSize: 32,
     letterSpacing: 10,
+    fontFamily: 'monospace',
+    textAlign: 'center',
   },
   keypadContainer: {
     width: '100%',
-    maxWidth: 300,
+    padding: 20,
   },
-  keypadRow: {
+  keypadGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     marginBottom: 20,
   },
   keypadButton: {
-    width: 70,
-    height: 70,
+    width: '30%',
+    aspectRatio: 1,
     borderWidth: 1,
-    borderColor: '#4E5DE1',
-    borderRadius: 35,
+    borderColor: '#2a3c5d',
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  actionButton: {
+    width: '30%',
+    aspectRatio: 1,
+    borderWidth: 1,
+    borderColor: '#85a8ff',
+    borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
   },
   keypadText: {
+    color: '#85a8ff',
     fontSize: 24,
+    fontFamily: 'monospace',
   },
 }); 
