@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -16,27 +16,37 @@ export default function HomeScreen() {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Authentication Hell</ThemedText>
-      </ThemedView>
-      
-      <ThemedView style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={handleSignUp}
-        >
-          <ThemedText style={styles.buttonText}>Sign Up</ThemedText>
-        </TouchableOpacity>
+    <View style={styles.container}>
+      <View style={styles.formContainer}>
+        <View style={styles.headerGroup}>
+          <ThemedText style={styles.headerText}>Authentication Hell</ThemedText>
+        </View>
+        
+        <View style={styles.optionGroup}>
+          <ThemedText style={styles.optionText}>Select an option:</ThemedText>
+          
+          <TouchableOpacity 
+            style={styles.optionButton} 
+            onPress={handleSignUp}
+          >
+            <ThemedText style={styles.optionButtonText}>Sign up</ThemedText>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.optionButton} 
+            onPress={handleLogIn}
+          >
+            <ThemedText style={styles.optionButtonText}>Log in</ThemedText>
+          </TouchableOpacity>
+        </View>
         
         <TouchableOpacity 
-          style={styles.button} 
-          onPress={handleLogIn}
+          style={styles.cursorButton} 
         >
-          <ThemedText style={styles.buttonText}>Log In</ThemedText>
+          <View style={styles.cursor}></View>
         </TouchableOpacity>
-      </ThemedView>
-    </ThemedView>
+      </View>
+    </View>
   );
 }
 
@@ -45,25 +55,62 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#0f1117',
     padding: 20,
   },
-  titleContainer: {
-    marginBottom: 50,
-  },
-  buttonContainer: {
+  formContainer: {
     width: '100%',
-    gap: 20,
+    maxWidth: 400,
+    borderWidth: 1,
+    borderColor: '#2a3c5d',
+    borderRadius: 5,
+    overflow: 'hidden',
   },
-  button: {
-    backgroundColor: '#4E5DE1',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+  headerGroup: {
+    width: '100%',
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
+    padding: 20,
   },
-  buttonText: {
-    color: 'white',
+  headerText: {
+    color: '#85a8ff',
+    fontSize: 28,
+    fontFamily: 'monospace',
+    textAlign: 'center',
+  },
+  optionGroup: {
+    width: '100%',
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
+    padding: 20,
+  },
+  optionText: {
+    color: '#85a8ff',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: 'monospace',
+    marginBottom: 20,
+  },
+  optionButton: {
+    borderWidth: 1,
+    borderColor: '#2a3c5d',
+    borderRadius: 5,
+    padding: 15,
+    marginBottom: 15,
+    backgroundColor: 'rgba(133, 168, 255, 0.05)',
+  },
+  optionButtonText: {
+    color: '#85a8ff',
+    fontSize: 18,
+    fontFamily: 'monospace',
+    textAlign: 'center',
+  },
+  cursorButton: {
+    alignItems: 'flex-end',
+    padding: 20,
+  },
+  cursor: {
+    width: 30,
+    height: 5,
+    backgroundColor: '#85a8ff',
   },
 });
