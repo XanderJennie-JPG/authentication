@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, Platform, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -28,45 +28,45 @@ export default function SignupScreen() {
     saveToStorage('auth_password', password);
     
     // Navigate to pin screen
-    router.push('signup-pin');
+    router.push('/signup-pin');
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Create Account</ThemedText>
-      </ThemedView>
-      
-      <ThemedView style={styles.inputContainer}>
-        <ThemedText>username</ThemedText>
-        <TextInput
-          style={styles.input}
-          value={username}
-          onChangeText={setUsername}
-          placeholder=""
-          placeholderTextColor="#666"
-        />
-      </ThemedView>
-      
-      <ThemedView style={styles.inputContainer}>
-        <ThemedText>password</ThemedText>
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          placeholder=""
-          placeholderTextColor="#666"
-        />
-      </ThemedView>
-      
-      <TouchableOpacity 
-        style={styles.button} 
-        onPress={handleNext}
-      >
-        <ThemedText style={styles.buttonText}>Next</ThemedText>
-      </TouchableOpacity>
-    </ThemedView>
+    <View style={styles.container}>
+      <View style={styles.formContainer}>
+        <View style={styles.inputGroup}>
+          <ThemedText style={styles.inputLabel}>username</ThemedText>
+          <TextInput
+            style={styles.input}
+            value={username}
+            onChangeText={setUsername}
+            placeholder=""
+            placeholderTextColor="#666"
+            selectionColor="#85a8ff"
+          />
+        </View>
+        
+        <View style={styles.inputGroup}>
+          <ThemedText style={styles.inputLabel}>password</ThemedText>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            placeholder=""
+            placeholderTextColor="#666"
+            selectionColor="#85a8ff"
+          />
+        </View>
+        
+        <TouchableOpacity 
+          style={styles.cursorButton} 
+          onPress={handleNext}
+        >
+          <View style={styles.cursor}></View>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
@@ -75,37 +75,44 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#0f1117',
     padding: 20,
   },
-  titleContainer: {
-    marginBottom: 50,
-  },
-  inputContainer: {
+  formContainer: {
     width: '100%',
-    marginBottom: 20,
+    maxWidth: 400,
+    borderWidth: 1,
+    borderColor: '#2a3c5d',
+    borderRadius: 5,
+    padding: 0,
+    overflow: 'hidden',
+  },
+  inputGroup: {
+    width: '100%',
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
+    padding: 20,
+  },
+  inputLabel: {
+    color: '#85a8ff',
+    fontSize: 18,
+    marginBottom: 10,
+    fontFamily: 'monospace',
   },
   input: {
     width: '100%',
-    padding: 15,
-    borderWidth: 1,
-    borderColor: '#4E5DE1',
-    borderRadius: 8,
-    marginTop: 10,
-    color: '#000',
-    backgroundColor: '#fff',
+    color: '#85a8ff',
+    fontSize: 36,
+    fontFamily: 'monospace',
+    padding: 0,
   },
-  button: {
-    backgroundColor: '#4E5DE1',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    marginTop: 20,
+  cursorButton: {
+    alignItems: 'flex-end',
+    padding: 20,
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+  cursor: {
+    width: 30,
+    height: 5,
+    backgroundColor: '#85a8ff',
   },
 }); 
