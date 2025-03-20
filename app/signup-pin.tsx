@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, TouchableOpacity, Platform, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -40,75 +40,58 @@ export default function SignupPinScreen() {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Create PIN</ThemedText>
-      </ThemedView>
-      
-      <ThemedView style={styles.pinContainer}>
-        <ThemedText style={styles.pinInstructions}>enter your pin.</ThemedText>
-        <ThemedView style={styles.pinDisplay}>
-          <ThemedText style={styles.pinText}>{pin.replace(/./g, '*')}</ThemedText>
-        </ThemedView>
-      </ThemedView>
-      
-      <ThemedView style={styles.keypadContainer}>
-        <ThemedView style={styles.keypadRow}>
-          {[1, 2, 3].map(num => (
-            <TouchableOpacity 
-              key={num} 
-              style={styles.keypadButton} 
-              onPress={() => handleDigit(num.toString())}
-            >
-              <ThemedText style={styles.keypadText}>{num}</ThemedText>
-            </TouchableOpacity>
-          ))}
-        </ThemedView>
+    <View style={styles.container}>
+      <View style={styles.pinPadContainer}>
+        <View style={styles.pinDisplay}>
+          <ThemedText style={styles.pinLabel}>enter your pin.</ThemedText>
+          <View style={styles.pinValueContainer}>
+            <ThemedText style={styles.pinValue}>{pin.replace(/./g, '*')}</ThemedText>
+          </View>
+        </View>
         
-        <ThemedView style={styles.keypadRow}>
-          {[4, 5, 6].map(num => (
-            <TouchableOpacity 
-              key={num} 
-              style={styles.keypadButton} 
-              onPress={() => handleDigit(num.toString())}
+        <View style={styles.keypadContainer}>
+          <View style={styles.keypadGrid}>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+              <TouchableOpacity
+                key={num}
+                style={styles.keypadButton}
+                onPress={() => handleDigit(num.toString())}
+              >
+                <ThemedText style={styles.keypadText}>{num}</ThemedText>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.keypadButtonEmpty}></TouchableOpacity>
+            <TouchableOpacity
+              style={styles.keypadButton}
+              onPress={() => handleDigit('0')}
             >
-              <ThemedText style={styles.keypadText}>{num}</ThemedText>
+              <ThemedText style={styles.keypadText}>0</ThemedText>
             </TouchableOpacity>
-          ))}
-        </ThemedView>
-        
-        <ThemedView style={styles.keypadRow}>
-          {[7, 8, 9].map(num => (
+            <TouchableOpacity style={styles.keypadButtonEmpty}></TouchableOpacity>
+          </View>
+          
+          <View style={styles.actionRow}>
             <TouchableOpacity 
-              key={num} 
-              style={styles.keypadButton} 
-              onPress={() => handleDigit(num.toString())}
+              style={styles.actionButton} 
+              onPress={handleDelete}
             >
-              <ThemedText style={styles.keypadText}>{num}</ThemedText>
+              <ThemedText style={styles.actionButtonText}>←</ThemedText>
             </TouchableOpacity>
-          ))}
-        </ThemedView>
-        
-        <ThemedView style={styles.keypadRow}>
-          <TouchableOpacity style={styles.keypadButton} onPress={handleDelete}>
-            <ThemedText style={styles.keypadText}>←</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.keypadButton} 
-            onPress={() => handleDigit('0')}
-          >
-            <ThemedText style={styles.keypadText}>0</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.keypadButton, {opacity: pin.length === 6 ? 1 : 0.5}]} 
-            onPress={handleNext}
-            disabled={pin.length !== 6}
-          >
-            <ThemedText style={styles.keypadText}>→</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-      </ThemedView>
-    </ThemedView>
+            
+            <TouchableOpacity
+              style={[
+                styles.actionButton, 
+                {opacity: pin.length === 6 ? 1 : 0.5}
+              ]}
+              onPress={handleNext}
+              disabled={pin.length !== 6}
+            >
+              <ThemedText style={styles.actionButtonText}>→</ThemedText>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </View>
   );
 }
 
@@ -117,50 +100,84 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#0f1117',
     padding: 20,
   },
-  titleContainer: {
-    marginBottom: 30,
-  },
-  pinContainer: {
+  pinPadContainer: {
     width: '100%',
-    alignItems: 'flex-start',
-    marginBottom: 30,
-  },
-  pinInstructions: {
-    fontSize: 18,
-    marginBottom: 10,
+    maxWidth: 400,
+    borderWidth: 1,
+    borderColor: '#2a3c5d',
+    borderRadius: 5,
+    overflow: 'hidden',
   },
   pinDisplay: {
-    width: '100%',
-    height: 50,
-    justifyContent: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: '#4E5DE1',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a3c5d',
   },
-  pinText: {
+  pinLabel: {
+    color: '#85a8ff',
+    fontSize: 18,
+    marginBottom: 15,
+    fontFamily: 'monospace',
+  },
+  pinValueContainer: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#85a8ff',
+    paddingBottom: 10,
+  },
+  pinValue: {
+    color: '#85a8ff',
     fontSize: 24,
     letterSpacing: 10,
+    fontFamily: 'monospace',
   },
   keypadContainer: {
-    width: '100%',
-    maxWidth: 300,
+    padding: 20,
   },
-  keypadRow: {
+  keypadGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: 20,
   },
   keypadButton: {
-    width: 70,
+    width: '30%',
     height: 70,
-    borderWidth: 1,
-    borderColor: '#4E5DE1',
-    borderRadius: 35,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#2a3c5d',
+    borderRadius: 5,
+  },
+  keypadButtonEmpty: {
+    width: '30%',
+    height: 70,
+    marginBottom: 15,
   },
   keypadText: {
+    color: '#85a8ff',
     fontSize: 24,
+    fontFamily: 'monospace',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  actionButton: {
+    width: '48%',
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#2a3c5d',
+    borderRadius: 5,
+  },
+  actionButtonText: {
+    color: '#85a8ff',
+    fontSize: 24,
+    fontFamily: 'monospace',
   },
 }); 
