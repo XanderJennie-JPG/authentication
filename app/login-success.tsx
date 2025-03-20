@@ -4,36 +4,26 @@ import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
-export default function HomeScreen() {
+export default function LoginSuccessScreen() {
   const router = useRouter();
   
-  const handleSignUp = () => {
-    router.push('/signup');
-  };
-  
-  const handleLogIn = () => {
-    router.push('/login');
+  const handleHome = () => {
+    router.push('/');
   };
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Authentication Hell</ThemedText>
-      </ThemedView>
-      
-      <ThemedView style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={handleSignUp}
-        >
-          <ThemedText style={styles.buttonText}>Sign Up</ThemedText>
-        </TouchableOpacity>
+      <ThemedView style={styles.contentContainer}>
+        <ThemedText type="title" style={styles.title}>Successful Login!</ThemedText>
+        <ThemedText style={styles.message}>
+          You have successfully completed all the authentication steps. Welcome to Authentication Hell!
+        </ThemedText>
         
         <TouchableOpacity 
           style={styles.button} 
-          onPress={handleLogIn}
+          onPress={handleHome}
         >
-          <ThemedText style={styles.buttonText}>Log In</ThemedText>
+          <ThemedText style={styles.buttonText}>Back to Home</ThemedText>
         </TouchableOpacity>
       </ThemedView>
     </ThemedView>
@@ -47,12 +37,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
-  titleContainer: {
-    marginBottom: 50,
-  },
-  buttonContainer: {
+  contentContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
     width: '100%',
-    gap: 20,
+  },
+  title: {
+    marginBottom: 20,
+    fontSize: 32,
+  },
+  message: {
+    textAlign: 'center',
+    marginBottom: 40,
+    fontSize: 16,
+    lineHeight: 24,
   },
   button: {
     backgroundColor: '#4E5DE1',
@@ -60,10 +58,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
   },
   buttonText: {
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
   },
-});
+}); 

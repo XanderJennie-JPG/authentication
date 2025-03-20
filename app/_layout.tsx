@@ -31,7 +31,16 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+        <Stack.Screen name="signup" options={{ title: 'Sign Up' }} />
+        <Stack.Screen name="signup-pin" options={{ title: 'Create PIN' }} />
+        <Stack.Screen name="signup-email" options={{ title: 'Email Verification' }} />
+        <Stack.Screen name="signup-security" options={{ title: 'Security Question' }} />
+        <Stack.Screen name="signup-success" options={{ title: 'Success' }} />
+        <Stack.Screen name="login" options={{ title: 'Log In' }} />
+        <Stack.Screen name="login-pin" options={{ title: 'PIN Verification' }} />
+        <Stack.Screen name="login-email" options={{ title: 'Email Verification' }} />
+        <Stack.Screen name="login-security" options={{ title: 'Security Question' }} />
+        <Stack.Screen name="login-success" options={{ title: 'Success' }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
